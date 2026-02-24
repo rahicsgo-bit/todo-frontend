@@ -9,7 +9,7 @@ import {
   Menu,
 } from "@mantine/core";
 import { useRouter } from "next/navigation";
-import { IconLogout, IconClipboard } from "@/components/icons";
+import { IconLogout, IconClipboard, IconLock } from "@/components/icons";
 import { NotificationPanel } from "@/components/notification-panel";
 import { ChatPanel } from "@/components/chat-panel";
 import type { AppNotification } from "@/lib/notification-types";
@@ -66,6 +66,13 @@ export function TodoHeader({
             </Menu.Target>
             <Menu.Dropdown>
               <Menu.Label>Account</Menu.Label>
+              <Menu.Item
+                leftSection={<IconLock size={16} />}
+                onClick={() => router.push("/change-password")}
+              >
+                Change password
+              </Menu.Item>
+              <Menu.Divider />
               <Menu.Item
                 leftSection={<IconLogout size={16} />}
                 onClick={() => router.push("/login")}
