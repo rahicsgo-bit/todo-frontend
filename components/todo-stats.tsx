@@ -1,6 +1,6 @@
 "use client";
 
-import { Paper, Text, RingProgress, Group, Stack, Badge } from "@mantine/core";
+import { Paper, Text, RingProgress, Group, Stack, Badge, SimpleGrid } from "@mantine/core";
 import type { Todo } from "@/lib/todo-types";
 
 interface TodoStatsProps {
@@ -19,70 +19,162 @@ export function TodoStats({ todos }: TodoStatsProps) {
   const completedPercentage =
     total > 0 ? Math.round((completedCount / total) * 100) : 0;
 
+  // Average completion time (days between createdAt and today for completed tasks)
+  const completedTodos = todos.filter((t) => t.status === "completed");
+  const avgCompletionDays =
+    completedTodos.length > 0
+      ? Math.round(
+          completedTodos.reduce((sum, t) => {
+            const diffMs = Date.now() - new Date(t.createdAt).getTime();
+            return sum + diffMs / (1000 * 60 * 60 * 24);
+          }, 0) / completedTodos.length
+        )
+      : 0;
+  // Cap the ring at 30 days for visual scaling
+  const avgRingValue = Math.min((avgCompletionDays / 30) * 100, 100);
+
+  // Overdue tasks (non-completed tasks whose dueDate is in the past)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const overdueTodos = todos.filter((t) => {
+    if (t.status === "completed" || !t.dueDate) return false;
+    return new Date(t.dueDate) < today;
+  });
+  const overdueCount = overdueTodos.length;
+  const nonCompletedWithDate = todos.filter(
+    (t) => t.status !== "completed" && t.dueDate
+  ).length;
+  const overduePercentage =
+    nonCompletedWithDate > 0
+      ? Math.round((overdueCount / nonCompletedWithDate) * 100)
+      : 0;
+
   return (
-    <Paper className="border border-border bg-card p-5" radius="md">
-      <Group justify="space-between" align="flex-start" wrap="nowrap">
-        <Stack gap="md" className="flex-1">
-          <Group gap="sm" align="center">
-            <Text size="lg" fw={600} className="text-card-foreground">
-              Overview
+    <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
+      {/* Overview card */}
+      <Paper className="border border-border bg-card p-5" radius="md">
+        <Group justify="space-between" align="flex-start" wrap="nowrap">
+          <Stack gap="md" className="flex-1">
+            <Group gap="sm" align="center">
+              <Text size="lg" fw={600} className="text-card-foreground">
+                Overview
+              </Text>
+              <Badge size="lg" variant="light" color="indigo" radius="sm">
+                {total} {total === 1 ? "task" : "tasks"}
+              </Badge>
+            </Group>
+
+            <Group gap="lg" wrap="wrap">
+              <Stack gap={2} align="center">
+                <Text size="xl" fw={700} c="blue">
+                  {todoCount}
+                </Text>
+                <Text size="xs" c="dimmed">
+                  Todo
+                </Text>
+              </Stack>
+              <Stack gap={2} align="center">
+                <Text size="xl" fw={700} c="orange">
+                  {inProgressCount}
+                </Text>
+                <Text size="xs" c="dimmed">
+                  In Progress
+                </Text>
+              </Stack>
+              <Stack gap={2} align="center">
+                <Text size="xl" fw={700} c="green">
+                  {completedCount}
+                </Text>
+                <Text size="xs" c="dimmed">
+                  Completed
+                </Text>
+              </Stack>
+            </Group>
+          </Stack>
+
+          <Stack gap={4} align="center" className="shrink-0">
+            <RingProgress
+              size={90}
+              thickness={9}
+              roundCaps
+              sections={[
+                {
+                  value: completedPercentage,
+                  color: "green",
+                },
+              ]}
+              label={
+                <Text ta="center" fw={700} size="sm">
+                  {completedPercentage}%
+                </Text>
+              }
+            />
+            <Text size="xs" c="dimmed">
+              Completed
             </Text>
-            <Badge size="lg" variant="light" color="indigo" radius="sm">
-              {total} {total === 1 ? "task" : "tasks"} total
-            </Badge>
-          </Group>
+          </Stack>
+        </Group>
+      </Paper>
 
-          <Group gap="lg" wrap="wrap">
-            <Stack gap={2} align="center">
-              <Text size="xl" fw={700} c="blue">
-                {todoCount}
-              </Text>
-              <Text size="xs" c="dimmed">
-                Todo
-              </Text>
-            </Stack>
-            <Stack gap={2} align="center">
-              <Text size="xl" fw={700} c="orange">
-                {inProgressCount}
-              </Text>
-              <Text size="xs" c="dimmed">
-                In Progress
-              </Text>
-            </Stack>
-            <Stack gap={2} align="center">
-              <Text size="xl" fw={700} c="green">
-                {completedCount}
-              </Text>
-              <Text size="xs" c="dimmed">
-                Completed
-              </Text>
-            </Stack>
-
-          </Group>
-        </Stack>
-
-        <Stack gap={4} align="center" className="shrink-0">
+      {/* Avg completion time card */}
+      <Paper className="border border-border bg-card p-5" radius="md">
+        <Stack gap="md" align="center" justify="center" className="h-full">
+          <Text size="lg" fw={600} className="text-card-foreground">
+            Avg. Completion Time
+          </Text>
           <RingProgress
-            size={90}
-            thickness={9}
+            size={100}
+            thickness={10}
             roundCaps
             sections={[
               {
-                value: completedPercentage,
-                color: "green",
+                value: avgRingValue,
+                color: "indigo",
               },
             ]}
             label={
               <Text ta="center" fw={700} size="sm">
-                {completedPercentage}%
+                {avgCompletionDays}d
               </Text>
             }
           />
-          <Text size="xs" c="dimmed">
-            Completed
+          <Text size="sm" c="dimmed">
+            {completedTodos.length > 0
+              ? `${avgCompletionDays} ${avgCompletionDays === 1 ? "day" : "days"} average`
+              : "No completed tasks"}
           </Text>
         </Stack>
-      </Group>
-    </Paper>
+      </Paper>
+
+      {/* Overdue tasks card */}
+      <Paper className="border border-border bg-card p-5" radius="md">
+        <Stack gap="md" align="center" justify="center" className="h-full">
+          <Text size="lg" fw={600} className="text-card-foreground">
+            Overdue Tasks
+          </Text>
+          <RingProgress
+            size={100}
+            thickness={10}
+            roundCaps
+            sections={[
+              {
+                value: overduePercentage,
+                color: "red",
+              },
+            ]}
+            label={
+              <Text ta="center" fw={700} size="sm" c={overdueCount > 0 ? "red" : undefined}>
+                {overdueCount}
+              </Text>
+            }
+          />
+          <Text size="sm" c="dimmed">
+            {overdueCount > 0
+              ? `${overdueCount} ${overdueCount === 1 ? "task" : "tasks"} past due`
+              : "All tasks on track"}
+          </Text>
+        </Stack>
+      </Paper>
+    </SimpleGrid>
   );
 }
