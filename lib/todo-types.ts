@@ -6,6 +6,7 @@ export interface Todo {
   status: TodoStatus;
   priority: "low" | "medium" | "high";
   assignees: string[];
+  startDate: string | null;
   dueDate: string | null;
   createdAt: Date;
 }

@@ -10,6 +10,7 @@ interface AddTodoFormProps {
   onAdd: (
     title: string,
     priority: Todo["priority"],
+    startDate: string | null,
     dueDate: string | null,
     assignees: string[]
   ) => void;
@@ -20,6 +21,7 @@ export function AddTodoForm({ onAdd }: AddTodoFormProps) {
     initialValues: {
       title: "",
       priority: "medium" as Todo["priority"],
+      startDate: "",
       dueDate: "",
       assignees: [] as string[],
     },
@@ -33,6 +35,7 @@ export function AddTodoForm({ onAdd }: AddTodoFormProps) {
     onAdd(
       values.title.trim(),
       values.priority,
+      values.startDate || null,
       values.dueDate || null,
       values.assignees
     );
@@ -58,6 +61,14 @@ export function AddTodoForm({ onAdd }: AddTodoFormProps) {
             clearable
             searchable
             {...form.getInputProps("assignees")}
+          />
+          <TextInput
+            type="date"
+            size="md"
+            className="w-[160px]"
+            leftSection={<IconCalendar size={16} />}
+            placeholder="Start date"
+            {...form.getInputProps("startDate")}
           />
           <TextInput
             type="date"

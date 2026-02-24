@@ -189,28 +189,45 @@ export function TodoItem({ todo, onStatusChange, onDelete, onEdit }: TodoItemPro
               </Avatar.Group>
             </Tooltip>
           )}
-          {todo.dueDate && !isCompleted && (
-            <Tooltip label={`Due: ${formatDueDate(todo.dueDate)}`}>
-              <Badge
-                size="sm"
-                variant="light"
-                color={DUE_COLORS[isDueOrOverdue(todo.dueDate)]}
-                leftSection={<IconCalendar size={12} />}
-                className="cursor-default"
-              >
-                {formatDueDate(todo.dueDate)}
-              </Badge>
-            </Tooltip>
-          )}
-          {todo.dueDate && isCompleted && (
-            <Badge
-              size="sm"
-              variant="light"
-              color="gray"
-              leftSection={<IconCalendar size={12} />}
-            >
-              {formatDueDate(todo.dueDate)}
-            </Badge>
+          {(todo.startDate || todo.dueDate) && (
+            <div className="flex flex-col items-end gap-1">
+              {todo.startDate && (
+                <Tooltip label={`Start: ${formatDueDate(todo.startDate)}`}>
+                  <Badge
+                    size="sm"
+                    variant="light"
+                    color="indigo"
+                    leftSection={<IconCalendar size={12} />}
+                    className="cursor-default"
+                  >
+                    {formatDueDate(todo.startDate)}
+                  </Badge>
+                </Tooltip>
+              )}
+              {todo.dueDate && !isCompleted && (
+                <Tooltip label={`Due: ${formatDueDate(todo.dueDate)}`}>
+                  <Badge
+                    size="sm"
+                    variant="light"
+                    color={DUE_COLORS[isDueOrOverdue(todo.dueDate)]}
+                    leftSection={<IconCalendar size={12} />}
+                    className="cursor-default"
+                  >
+                    {formatDueDate(todo.dueDate)}
+                  </Badge>
+                </Tooltip>
+              )}
+              {todo.dueDate && isCompleted && (
+                <Badge
+                  size="sm"
+                  variant="light"
+                  color="gray"
+                  leftSection={<IconCalendar size={12} />}
+                >
+                  {formatDueDate(todo.dueDate)}
+                </Badge>
+              )}
+            </div>
           )}
           {isEditing ? (
             <ActionIcon

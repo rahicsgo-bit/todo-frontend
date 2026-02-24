@@ -22,6 +22,7 @@ const INITIAL_TODOS: Todo[] = [
     status: "completed",
     priority: "high",
     assignees: ["alice", "bob"],
+    startDate: "2026-02-18",
     dueDate: "2026-02-20",
     createdAt: new Date("2026-02-20"),
   },
@@ -31,6 +32,7 @@ const INITIAL_TODOS: Todo[] = [
     status: "in-progress",
     priority: "high",
     assignees: ["carol"],
+    startDate: "2026-02-25",
     dueDate: "2026-02-28",
     createdAt: new Date("2026-02-21"),
   },
@@ -40,6 +42,7 @@ const INITIAL_TODOS: Todo[] = [
     status: "todo",
     priority: "medium",
     assignees: ["dave", "eve", "alice"],
+    startDate: "2026-03-01",
     dueDate: "2026-03-05",
     createdAt: new Date("2026-02-22"),
   },
@@ -49,6 +52,7 @@ const INITIAL_TODOS: Todo[] = [
     status: "todo",
     priority: "low",
     assignees: ["bob"],
+    startDate: null,
     dueDate: null,
     createdAt: new Date("2026-02-23"),
   },
@@ -58,6 +62,7 @@ const INITIAL_TODOS: Todo[] = [
     status: "completed",
     priority: "medium",
     assignees: ["alice", "bob", "carol", "dave"],
+    startDate: "2026-02-24",
     dueDate: "2026-02-24",
     createdAt: new Date("2026-02-24"),
   },
@@ -129,13 +134,14 @@ export default function TodoPage() {
     return todos.filter((t) => t.status === filter);
   }, [todos, filter]);
 
-  const handleAdd = (title: string, priority: Todo["priority"], dueDate: string | null, assignees: string[]) => {
+  const handleAdd = (title: string, priority: Todo["priority"], startDate: string | null, dueDate: string | null, assignees: string[]) => {
     const newTodo: Todo = {
       id: crypto.randomUUID(),
       title,
       status: "todo",
       priority,
       assignees,
+      startDate,
       dueDate,
       createdAt: new Date(),
     };
