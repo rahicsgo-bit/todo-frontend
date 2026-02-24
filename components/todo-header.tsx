@@ -11,14 +11,25 @@ import {
 import { useRouter } from "next/navigation";
 import { IconLogout, IconClipboard } from "@/components/icons";
 import { NotificationPanel } from "@/components/notification-panel";
+import { ChatPanel } from "@/components/chat-panel";
 import type { AppNotification } from "@/lib/notification-types";
+import type { ChatConversation } from "@/lib/chat-types";
 
 interface TodoHeaderProps {
   notifications: AppNotification[];
   onMarkAllRead: () => void;
+  conversations: ChatConversation[];
+  onSendMessage: (conversationId: string, text: string) => void;
+  onMarkConversationRead: (conversationId: string) => void;
 }
 
-export function TodoHeader({ notifications, onMarkAllRead }: TodoHeaderProps) {
+export function TodoHeader({
+  notifications,
+  onMarkAllRead,
+  conversations,
+  onSendMessage,
+  onMarkConversationRead,
+}: TodoHeaderProps) {
   const router = useRouter();
 
   return (
@@ -34,6 +45,11 @@ export function TodoHeader({ notifications, onMarkAllRead }: TodoHeaderProps) {
           <NotificationPanel
             notifications={notifications}
             onMarkAllRead={onMarkAllRead}
+          />
+          <ChatPanel
+            conversations={conversations}
+            onSendMessage={onSendMessage}
+            onMarkConversationRead={onMarkConversationRead}
           />
           <Menu shadow="md" width={200}>
             <Menu.Target>

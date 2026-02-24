@@ -12,6 +12,8 @@ import { TodoEmpty } from "@/components/todo-empty";
 import type { Todo, FilterType, TodoStatus } from "@/lib/todo-types";
 import { STATUS_LABELS } from "@/lib/todo-types";
 import type { AppNotification } from "@/lib/notification-types";
+import type { ChatConversation, ChatMessage } from "@/lib/chat-types";
+import { TEAM_MEMBERS } from "@/lib/team-members";
 
 const INITIAL_TODOS: Todo[] = [
   {
@@ -85,6 +87,43 @@ export default function TodoPage() {
     );
   }, []);
 
+  // Chat state
+  const [conversations, setConversations] = useState<ChatConversation[]>(() =>
+    TEAM_MEMBERS.map((member) => ({
+      id: member.id,
+      memberId: member.id,
+      memberName: member.name,
+      memberColor: member.color,
+      messages: [],
+      unreadCount: 0,
+    }))
+  );
+
+  const handleSendMessage = useCallback((conversationId: string, text: string) => {
+    const newMsg: ChatMessage = {
+      id: crypto.randomUUID(),
+      conversationId,
+      senderId: "user",
+      text,
+      timestamp: new Date(),
+    };
+    setConversations((prev) =>
+      prev.map((c) =>
+        c.id === conversationId
+          ? { ...c, messages: [...c.messages, newMsg] }
+          : c
+      )
+    );
+  }, []);
+
+  const handleMarkConversationRead = useCallback((conversationId: string) => {
+    setConversations((prev) =>
+      prev.map((c) =>
+        c.id === conversationId ? { ...c, unreadCount: 0 } : c
+      )
+    );
+  }, []);
+
   const filteredTodos = useMemo(() => {
     if (filter === "all") return todos;
     return todos.filter((t) => t.status === filter);
@@ -145,7 +184,13 @@ export default function TodoPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <TodoHeader notifications={appNotifications} onMarkAllRead={handleMarkAllRead} />
+      <TodoHeader
+        notifications={appNotifications}
+        onMarkAllRead={handleMarkAllRead}
+        conversations={conversations}
+        onSendMessage={handleSendMessage}
+        onMarkConversationRead={handleMarkConversationRead}
+      />
       <main className="flex-1 py-8">
         <Container size="md">
           <Stack gap="lg">
