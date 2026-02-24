@@ -21,7 +21,7 @@ export function AddTodoForm({ onAdd }: AddTodoFormProps) {
     initialValues: {
       title: "",
       priority: "medium" as Todo["priority"],
-      startDate: "",
+      startDate: new Date().toISOString().split("T")[0],
       dueDate: "",
       assignees: [] as string[],
     },
