@@ -10,8 +10,15 @@ import {
 } from "@mantine/core";
 import { useRouter } from "next/navigation";
 import { IconLogout, IconClipboard } from "@/components/icons";
+import { NotificationPanel } from "@/components/notification-panel";
+import type { AppNotification } from "@/lib/notification-types";
 
-export function TodoHeader() {
+interface TodoHeaderProps {
+  notifications: AppNotification[];
+  onMarkAllRead: () => void;
+}
+
+export function TodoHeader({ notifications, onMarkAllRead }: TodoHeaderProps) {
   const router = useRouter();
 
   return (
@@ -24,6 +31,10 @@ export function TodoHeader() {
           </Title>
         </Group>
         <Group gap="md">
+          <NotificationPanel
+            notifications={notifications}
+            onMarkAllRead={onMarkAllRead}
+          />
           <Menu shadow="md" width={200}>
             <Menu.Target>
               <Button variant="subtle" className="px-2">

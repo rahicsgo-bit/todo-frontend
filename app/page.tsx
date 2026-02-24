@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Container, Stack } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { TodoHeader } from "@/components/todo-header";
@@ -11,6 +11,7 @@ import { TodoFilters } from "@/components/todo-filters";
 import { TodoEmpty } from "@/components/todo-empty";
 import type { Todo, FilterType, TodoStatus } from "@/lib/todo-types";
 import { STATUS_LABELS } from "@/lib/todo-types";
+import type { AppNotification } from "@/lib/notification-types";
 
 const INITIAL_TODOS: Todo[] = [
   {
@@ -64,6 +65,25 @@ const INITIAL_TODOS: Todo[] = [
 export default function TodoPage() {
   const [todos, setTodos] = useState<Todo[]>(INITIAL_TODOS);
   const [filter, setFilter] = useState<FilterType>("all");
+  const [appNotifications, setAppNotifications] = useState<AppNotification[]>([]);
+
+  const addNotification = useCallback((title: string, message: string, color: string) => {
+    const newNotif: AppNotification = {
+      id: crypto.randomUUID(),
+      title,
+      message,
+      color,
+      timestamp: new Date(),
+      read: false,
+    };
+    setAppNotifications((prev) => [newNotif, ...prev]);
+  }, []);
+
+  const handleMarkAllRead = useCallback(() => {
+    setAppNotifications((prev) =>
+      prev.map((n) => ({ ...n, read: true }))
+    );
+  }, []);
 
   const filteredTodos = useMemo(() => {
     if (filter === "all") return todos;
@@ -81,6 +101,7 @@ export default function TodoPage() {
       createdAt: new Date(),
     };
     setTodos((prev) => [newTodo, ...prev]);
+    addNotification("Task added", `"${title}" has been added to your list.`, "indigo");
     notifications.show({
       title: "Task added",
       message: `"${title}" has been added to your list.`,
@@ -94,6 +115,7 @@ export default function TodoPage() {
       prev.map((t) => (t.id === id ? { ...t, status } : t))
     );
     if (todo) {
+      addNotification("Status updated", `"${todo.title}" moved to ${STATUS_LABELS[status]}.`, "indigo");
       notifications.show({
         title: "Status updated",
         message: `"${todo.title}" moved to ${STATUS_LABELS[status]}.`,
@@ -106,6 +128,7 @@ export default function TodoPage() {
     const todo = todos.find((t) => t.id === id);
     setTodos((prev) => prev.filter((t) => t.id !== id));
     if (todo) {
+      addNotification("Task deleted", `"${todo.title}" has been permanently removed.`, "red");
       notifications.show({
         title: "Task deleted",
         message: `"${todo.title}" has been permanently removed.`,
@@ -122,7 +145,7 @@ export default function TodoPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <TodoHeader />
+      <TodoHeader notifications={appNotifications} onMarkAllRead={handleMarkAllRead} />
       <main className="flex-1 py-8">
         <Container size="md">
           <Stack gap="lg">

@@ -41,50 +41,52 @@ export function AddTodoForm({ onAdd }: AddTodoFormProps) {
 
   return (
     <form onSubmit={form.onSubmit(handleSubmit)}>
-      <Group gap="sm" align="flex-end">
+      <div className="flex flex-col gap-3">
         <TextInput
           placeholder="What needs to be done?"
           size="md"
-          className="flex-1"
+          className="w-full"
           {...form.getInputProps("title")}
         />
-        <MultiSelect
-          data={TEAM_MEMBERS.map((m) => ({ value: m.id, label: m.name }))}
-          placeholder="Assignees"
-          size="md"
-          className="w-[220px]"
-          maxDropdownHeight={200}
-          clearable
-          searchable
-          {...form.getInputProps("assignees")}
-        />
-        <TextInput
-          type="date"
-          size="md"
-          className="w-[160px]"
-          leftSection={<IconCalendar size={16} />}
-          {...form.getInputProps("dueDate")}
-        />
-        <Select
-          data={[
-            { value: "low", label: "Low" },
-            { value: "medium", label: "Medium" },
-            { value: "high", label: "High" },
-          ]}
-          size="md"
-          className="w-[130px]"
-          allowDeselect={false}
-          {...form.getInputProps("priority")}
-        />
-        <Button
-          type="submit"
-          size="md"
-          color="indigo"
-          leftSection={<IconPlus size={18} />}
-        >
-          Add
-        </Button>
-      </Group>
+        <Group gap="sm" align="flex-end">
+          <MultiSelect
+            data={TEAM_MEMBERS.map((m) => ({ value: m.id, label: m.name }))}
+            placeholder="Assignees"
+            size="md"
+            className="flex-1"
+            maxDropdownHeight={200}
+            clearable
+            searchable
+            {...form.getInputProps("assignees")}
+          />
+          <TextInput
+            type="date"
+            size="md"
+            className="w-[160px]"
+            leftSection={<IconCalendar size={16} />}
+            {...form.getInputProps("dueDate")}
+          />
+          <Select
+            data={[
+              { value: "low", label: "Low" },
+              { value: "medium", label: "Medium" },
+              { value: "high", label: "High" },
+            ]}
+            size="md"
+            className="w-[130px]"
+            allowDeselect={false}
+            {...form.getInputProps("priority")}
+          />
+          <Button
+            type="submit"
+            size="md"
+            color="indigo"
+            leftSection={<IconPlus size={18} />}
+          >
+            Add
+          </Button>
+        </Group>
+      </div>
     </form>
   );
 }
