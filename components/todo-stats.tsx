@@ -1,6 +1,6 @@
 "use client";
 
-import { Paper, Text, RingProgress, Group, Stack, Badge, SimpleGrid } from "@mantine/core";
+import { Paper, Text, RingProgress, Group, Stack, Badge, Divider } from "@mantine/core";
 import type { Todo } from "@/lib/todo-types";
 
 interface TodoStatsProps {
@@ -30,7 +30,6 @@ export function TodoStats({ todos }: TodoStatsProps) {
           }, 0) / completedTodos.length
         )
       : 0;
-  // Cap the ring at 30 days for visual scaling
   const avgRingValue = Math.min((avgCompletionDays / 30) * 100, 100);
 
   // Overdue tasks (non-completed tasks whose dueDate is in the past)
@@ -50,61 +49,57 @@ export function TodoStats({ todos }: TodoStatsProps) {
       : 0;
 
   return (
-    <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
-      {/* Overview card */}
-      <Paper className="border border-border bg-card p-5" radius="md">
-        <Group justify="space-between" align="flex-start" wrap="nowrap">
-          <Stack gap="md" className="flex-1">
-            <Group gap="sm" align="center">
-              <Text size="lg" fw={600} className="text-card-foreground">
-                Overview
+    <Paper className="border border-border bg-card p-5" radius="md">
+      <Group justify="space-between" align="flex-start" wrap="nowrap">
+        {/* Left: counts */}
+        <Stack gap="md" className="flex-1">
+          <Group gap="sm" align="center">
+            <Text size="lg" fw={600} className="text-card-foreground">
+              Overview
+            </Text>
+            <Badge size="lg" variant="light" color="indigo" radius="sm">
+              {total} {total === 1 ? "task" : "tasks"}
+            </Badge>
+          </Group>
+
+          <Group gap="lg" wrap="wrap">
+            <Stack gap={2} align="center">
+              <Text size="xl" fw={700} c="blue">
+                {todoCount}
               </Text>
-              <Badge size="lg" variant="light" color="indigo" radius="sm">
-                {total} {total === 1 ? "task" : "tasks"}
-              </Badge>
-            </Group>
+              <Text size="xs" c="dimmed">
+                Todo
+              </Text>
+            </Stack>
+            <Stack gap={2} align="center">
+              <Text size="xl" fw={700} c="orange">
+                {inProgressCount}
+              </Text>
+              <Text size="xs" c="dimmed">
+                In Progress
+              </Text>
+            </Stack>
+            <Stack gap={2} align="center">
+              <Text size="xl" fw={700} c="green">
+                {completedCount}
+              </Text>
+              <Text size="xs" c="dimmed">
+                Completed
+              </Text>
+            </Stack>
+          </Group>
+        </Stack>
 
-            <Group gap="lg" wrap="wrap">
-              <Stack gap={2} align="center">
-                <Text size="xl" fw={700} c="blue">
-                  {todoCount}
-                </Text>
-                <Text size="xs" c="dimmed">
-                  Todo
-                </Text>
-              </Stack>
-              <Stack gap={2} align="center">
-                <Text size="xl" fw={700} c="orange">
-                  {inProgressCount}
-                </Text>
-                <Text size="xs" c="dimmed">
-                  In Progress
-                </Text>
-              </Stack>
-              <Stack gap={2} align="center">
-                <Text size="xl" fw={700} c="green">
-                  {completedCount}
-                </Text>
-                <Text size="xs" c="dimmed">
-                  Completed
-                </Text>
-              </Stack>
-            </Group>
-          </Stack>
-
-          <Stack gap={4} align="center" className="shrink-0">
+        {/* Right: three ring charts side by side */}
+        <Group gap="xl" wrap="nowrap" className="shrink-0">
+          <Stack gap={4} align="center">
             <RingProgress
-              size={90}
-              thickness={9}
+              size={80}
+              thickness={8}
               roundCaps
-              sections={[
-                {
-                  value: completedPercentage,
-                  color: "green",
-                },
-              ]}
+              sections={[{ value: completedPercentage, color: "green" }]}
               label={
-                <Text ta="center" fw={700} size="sm">
+                <Text ta="center" fw={700} size="xs">
                   {completedPercentage}%
                 </Text>
               }
@@ -113,68 +108,55 @@ export function TodoStats({ todos }: TodoStatsProps) {
               Completed
             </Text>
           </Stack>
+
+          <Divider orientation="vertical" />
+
+          <Stack gap={4} align="center">
+            <RingProgress
+              size={80}
+              thickness={8}
+              roundCaps
+              sections={[{ value: avgRingValue, color: "indigo" }]}
+              label={
+                <Text ta="center" fw={700} size="xs">
+                  {avgCompletionDays}d
+                </Text>
+              }
+            />
+            <Text size="xs" c="dimmed">
+              {completedTodos.length > 0
+                ? `${avgCompletionDays} ${avgCompletionDays === 1 ? "day" : "days"} avg`
+                : "No data"}
+            </Text>
+          </Stack>
+
+          <Divider orientation="vertical" />
+
+          <Stack gap={4} align="center">
+            <RingProgress
+              size={80}
+              thickness={8}
+              roundCaps
+              sections={[{ value: overduePercentage, color: "red" }]}
+              label={
+                <Text
+                  ta="center"
+                  fw={700}
+                  size="xs"
+                  c={overdueCount > 0 ? "red" : undefined}
+                >
+                  {overdueCount}
+                </Text>
+              }
+            />
+            <Text size="xs" c="dimmed">
+              {overdueCount > 0
+                ? `${overdueCount} overdue`
+                : "On track"}
+            </Text>
+          </Stack>
         </Group>
-      </Paper>
-
-      {/* Avg completion time card */}
-      <Paper className="border border-border bg-card p-5" radius="md">
-        <Stack gap="md" align="center" justify="center" className="h-full">
-          <Text size="lg" fw={600} className="text-card-foreground">
-            Avg. Completion Time
-          </Text>
-          <RingProgress
-            size={100}
-            thickness={10}
-            roundCaps
-            sections={[
-              {
-                value: avgRingValue,
-                color: "indigo",
-              },
-            ]}
-            label={
-              <Text ta="center" fw={700} size="sm">
-                {avgCompletionDays}d
-              </Text>
-            }
-          />
-          <Text size="sm" c="dimmed">
-            {completedTodos.length > 0
-              ? `${avgCompletionDays} ${avgCompletionDays === 1 ? "day" : "days"} average`
-              : "No completed tasks"}
-          </Text>
-        </Stack>
-      </Paper>
-
-      {/* Overdue tasks card */}
-      <Paper className="border border-border bg-card p-5" radius="md">
-        <Stack gap="md" align="center" justify="center" className="h-full">
-          <Text size="lg" fw={600} className="text-card-foreground">
-            Overdue Tasks
-          </Text>
-          <RingProgress
-            size={100}
-            thickness={10}
-            roundCaps
-            sections={[
-              {
-                value: overduePercentage,
-                color: "red",
-              },
-            ]}
-            label={
-              <Text ta="center" fw={700} size="sm" c={overdueCount > 0 ? "red" : undefined}>
-                {overdueCount}
-              </Text>
-            }
-          />
-          <Text size="sm" c="dimmed">
-            {overdueCount > 0
-              ? `${overdueCount} ${overdueCount === 1 ? "task" : "tasks"} past due`
-              : "All tasks on track"}
-          </Text>
-        </Stack>
-      </Paper>
-    </SimpleGrid>
+      </Group>
+    </Paper>
   );
 }
